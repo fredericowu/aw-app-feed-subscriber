@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   review:
-    uses: fredericowu/aw-shared-workflows/.github/workflows/code-review-reusable.yml@master
+    uses: fredericowu/aw-shared-workflows/.github/workflows/code-review-reusable.yml@v1.13.1
     with:
       # PR lifecycle v2 (card 41f5bf3b): review 1 blocks on MEDIUM+, later pushes merge on green CI.
       lifecycle: v2
