@@ -195,3 +195,4 @@ class TestAppSettingsSaveLeavesCardsAlone:
     def test_built_bundle_surfaces_the_agents_error_with_its_settings_pointer(self):
         bundle = (ROOT / "ui" / "dist" / "feed-subscriber-ui.mjs").read_text()
         assert "Settings &gt; Apps &gt; Feed Subscriber" in bundle or "Settings > Apps > Feed Subscriber" in bundle
+        assert "Agent lookup failed (HTTP" in bundle

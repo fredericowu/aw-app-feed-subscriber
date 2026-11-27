@@ -58,7 +58,10 @@ export function register(host) {
 
     useEffect(() => {
       host.sdk.api.fetch(host.app.apiUrl('/agents'))
-        .then((r) => r.json())
+        .then((r) => {
+          if (!r.ok) throw new Error(`Agent lookup failed (HTTP ${r.status})`);
+          return r.json();
+        })
         .then((data) => { setAgents(data.agents || []); setAgentsError(data.error || ''); })
         .catch((e) => { setAgents([]); setAgentsError(String((e && e.message) || e)); });
     }, []);

@@ -21,13 +21,16 @@ function R(e) {
     x(() => {
       p();
     }, [p]), x(() => {
-      e.sdk.api.fetch(e.app.apiUrl("/agents")).then((a) => a.json()).then((a) => {
+      e.sdk.api.fetch(e.app.apiUrl("/agents")).then((a) => {
+        if (!a.ok) throw new Error(`Agent lookup failed (HTTP ${a.status})`);
+        return a.json();
+      }).then((a) => {
         d(a.agents || []), t(a.error || "");
       }).catch((a) => {
         d([]), t(String(a && a.message || a));
       });
     }, []);
-    const w = i((a, l, n) => {
+    const _ = i((a, l, n) => {
       c((b) => b.map((s) => s.id === a ? { ...s, [l]: l === "poll_interval_seconds" ? Number(n) || 0 : n } : s));
     }, []), N = i(() => c((a) => [...a, k()]), []), C = i(async (a) => {
       const { _isNew: l, has_auth_token: n, ...b } = a;
@@ -65,18 +68,18 @@ function R(e) {
       },
       "+ Add feed"
     ))), u && /* @__PURE__ */ e.h("div", { role: "alert", className: "mb-4 text-xs rounded border border-[var(--color-border)] px-3 py-2 text-[var(--color-danger)]" }, "Could not load agents for Agent Call cards: ", u, ". Check the Agents Platform base URL and token in Settings > Apps > Feed Subscriber."), r.length === 0 && /* @__PURE__ */ e.h("div", { className: "text-xs text-[var(--color-text-muted)] italic" }, 'No feed subscriptions yet — click "+ Add feed" to create one.'), /* @__PURE__ */ e.h("div", { className: "space-y-4" }, r.map((a) => /* @__PURE__ */ e.h(
-      _,
+      w,
       {
         key: a.id,
         card: a,
         agents: o,
-        onChange: (l, n) => w(a.id, l, n),
+        onChange: (l, n) => _(a.id, l, n),
         onSave: () => C(a),
         onRemove: () => S(a)
       }
     ))));
   }
-  function _({ card: r, agents: c, onChange: o, onSave: d, onRemove: u }) {
+  function w({ card: r, agents: c, onChange: o, onSave: d, onRemove: u }) {
     return /* @__PURE__ */ e.h("div", { className: "bg-[var(--color-bg-secondary)] rounded-lg border border-[var(--color-border)] p-4 space-y-3" }, /* @__PURE__ */ e.h("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ e.h(
       "input",
       {
