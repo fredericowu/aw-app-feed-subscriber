@@ -1,5 +1,5 @@
-function S(e) {
-  const { useState: g, useEffect: x, useCallback: i } = e.React, h = () => ({
+function R(e) {
+  const { useState: v, useEffect: x, useCallback: i } = e.React, k = () => ({
     id: `feed-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     name: "",
     source_url: "",
@@ -11,9 +11,9 @@ function S(e) {
     target_slug: "w-feed-subscriber",
     _isNew: !0
   });
-  function f() {
-    const [r, c] = g(null), [o, d] = g([]), [u, a] = g(""), v = i((t) => {
-      a(t), setTimeout(() => a(""), 3e3);
+  function y() {
+    const [r, c] = v(null), [o, d] = v([]), [u, t] = v(""), [h, f] = v(""), g = i((a) => {
+      f(a), setTimeout(() => f(""), 3e3);
     }, []), p = i(async () => {
       const l = await (await e.sdk.api.fetch(e.app.apiUrl("/cards"))).json();
       c((l.cards || []).map((n) => ({ ...n, auth_token: "" })));
@@ -21,16 +21,23 @@ function S(e) {
     x(() => {
       p();
     }, [p]), x(() => {
-      e.sdk.api.fetch(e.app.apiUrl("/agents")).then((t) => t.json()).then((t) => d(t.agents || [])).catch(() => d([]));
+      e.sdk.api.fetch(e.app.apiUrl("/agents")).then((a) => {
+        if (!a.ok) throw new Error(`Agent lookup failed (HTTP ${a.status})`);
+        return a.json();
+      }).then((a) => {
+        d(a.agents || []), t(a.error || "");
+      }).catch((a) => {
+        d([]), t(String(a && a.message || a));
+      });
     }, []);
-    const y = i((t, l, n) => {
-      c((b) => b.map((s) => s.id === t ? { ...s, [l]: l === "poll_interval_seconds" ? Number(n) || 0 : n } : s));
-    }, []), _ = i(() => c((t) => [...t, h()]), []), w = i(async (t) => {
-      const { _isNew: l, has_auth_token: n, ...b } = t;
+    const _ = i((a, l, n) => {
+      c((b) => b.map((s) => s.id === a ? { ...s, [l]: l === "poll_interval_seconds" ? Number(n) || 0 : n } : s));
+    }, []), N = i(() => c((a) => [...a, k()]), []), C = i(async (a) => {
+      const { _isNew: l, has_auth_token: n, ...b } = a;
       b.auth_token || delete b.auth_token;
       try {
         const s = await e.sdk.api.fetch(
-          e.app.apiUrl(l ? "/cards" : `/cards/${encodeURIComponent(t.id)}`),
+          e.app.apiUrl(l ? "/cards" : `/cards/${encodeURIComponent(a.id)}`),
           {
             method: l ? "POST" : "PUT",
             headers: { "Content-Type": "application/json" },
@@ -38,46 +45,46 @@ function S(e) {
           }
         );
         if (!s.ok) {
-          const C = await s.json().catch(() => ({}));
-          v(C.detail || `Save failed (${s.status})`);
+          const A = await s.json().catch(() => ({}));
+          g(A.detail || `Save failed (${s.status})`);
           return;
         }
-        v("Saved"), await p();
+        g("Saved"), await p();
       } catch (s) {
-        v(s.message || "Save failed");
+        g(s.message || "Save failed");
       }
-    }, [p, v]), N = i(async (t) => {
-      if (t._isNew) {
-        c((l) => l.filter((n) => n.id !== t.id));
+    }, [p, g]), S = i(async (a) => {
+      if (a._isNew) {
+        c((l) => l.filter((n) => n.id !== a.id));
         return;
       }
-      await e.sdk.api.fetch(e.app.apiUrl(`/cards/${encodeURIComponent(t.id)}`), { method: "DELETE" }), await p();
+      await e.sdk.api.fetch(e.app.apiUrl(`/cards/${encodeURIComponent(a.id)}`), { method: "DELETE" }), await p();
     }, [p]);
-    return r === null ? /* @__PURE__ */ e.h("div", { className: "p-6 text-[var(--color-text-muted)]" }, "Loading...") : /* @__PURE__ */ e.h("div", { className: "p-6 max-w-3xl h-full overflow-y-auto" }, /* @__PURE__ */ e.h("div", { className: "flex items-center justify-between mb-4" }, /* @__PURE__ */ e.h("div", null, /* @__PURE__ */ e.h("h2", { className: "text-lg font-semibold text-[var(--color-text-primary)]" }, "Feed Subscriber"), /* @__PURE__ */ e.h("p", { className: "text-xs text-[var(--color-text-muted)] mt-1" }, "Each card polls a JSON source URL on its own interval. When the response changes since the last poll, it fires a Webhook Call or an Agent Call with the new entry.")), /* @__PURE__ */ e.h("div", { className: "flex items-center gap-3" }, u && /* @__PURE__ */ e.h("span", { className: "text-xs text-[var(--color-text-muted)]" }, u), /* @__PURE__ */ e.h(
+    return r === null ? /* @__PURE__ */ e.h("div", { className: "p-6 text-[var(--color-text-muted)]" }, "Loading...") : /* @__PURE__ */ e.h("div", { className: "p-6 max-w-3xl h-full overflow-y-auto" }, /* @__PURE__ */ e.h("div", { className: "flex items-center justify-between mb-4" }, /* @__PURE__ */ e.h("div", null, /* @__PURE__ */ e.h("h2", { className: "text-lg font-semibold text-[var(--color-text-primary)]" }, "Feed Subscriber"), /* @__PURE__ */ e.h("p", { className: "text-xs text-[var(--color-text-muted)] mt-1" }, "Each card polls a JSON source URL on its own interval. When the response changes since the last poll, it fires a Webhook Call or an Agent Call with the new entry.")), /* @__PURE__ */ e.h("div", { className: "flex items-center gap-3" }, h && /* @__PURE__ */ e.h("span", { className: "text-xs text-[var(--color-text-muted)]" }, h), /* @__PURE__ */ e.h(
       "button",
       {
-        onClick: _,
+        onClick: N,
         className: "px-3 py-1.5 text-xs rounded border border-[var(--color-border)] text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)] transition-colors"
       },
       "+ Add feed"
-    ))), r.length === 0 && /* @__PURE__ */ e.h("div", { className: "text-xs text-[var(--color-text-muted)] italic" }, 'No feed subscriptions yet — click "+ Add feed" to create one.'), /* @__PURE__ */ e.h("div", { className: "space-y-4" }, r.map((t) => /* @__PURE__ */ e.h(
-      k,
+    ))), u && /* @__PURE__ */ e.h("div", { role: "alert", className: "mb-4 text-xs rounded border border-[var(--color-border)] px-3 py-2 text-[var(--color-danger)]" }, "Could not load agents for Agent Call cards: ", u, ". Check the Agents Platform base URL and token in Settings > Apps > Feed Subscriber."), r.length === 0 && /* @__PURE__ */ e.h("div", { className: "text-xs text-[var(--color-text-muted)] italic" }, 'No feed subscriptions yet — click "+ Add feed" to create one.'), /* @__PURE__ */ e.h("div", { className: "space-y-4" }, r.map((a) => /* @__PURE__ */ e.h(
+      w,
       {
-        key: t.id,
-        card: t,
+        key: a.id,
+        card: a,
         agents: o,
-        onChange: (l, n) => y(t.id, l, n),
-        onSave: () => w(t),
-        onRemove: () => N(t)
+        onChange: (l, n) => _(a.id, l, n),
+        onSave: () => C(a),
+        onRemove: () => S(a)
       }
     ))));
   }
-  function k({ card: r, agents: c, onChange: o, onSave: d, onRemove: u }) {
+  function w({ card: r, agents: c, onChange: o, onSave: d, onRemove: u }) {
     return /* @__PURE__ */ e.h("div", { className: "bg-[var(--color-bg-secondary)] rounded-lg border border-[var(--color-border)] p-4 space-y-3" }, /* @__PURE__ */ e.h("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ e.h(
       "input",
       {
         value: r.name,
-        onChange: (a) => o("name", a.target.value),
+        onChange: (t) => o("name", t.target.value),
         placeholder: "Feed name",
         className: "text-sm font-medium bg-transparent text-[var(--color-text-primary)] border-b border-transparent hover:border-[var(--color-border)] focus:border-[var(--color-accent)] outline-none px-1"
       }
@@ -100,7 +107,7 @@ function S(e) {
       {
         label: "Source JSON URL",
         value: r.source_url,
-        onChange: (a) => o("source_url", a),
+        onChange: (t) => o("source_url", t),
         placeholder: "https://example.com/feed.json"
       }
     ), /* @__PURE__ */ e.h(
@@ -108,7 +115,7 @@ function S(e) {
       {
         label: "Poll Interval (seconds)",
         value: r.poll_interval_seconds,
-        onChange: (a) => o("poll_interval_seconds", a),
+        onChange: (t) => o("poll_interval_seconds", t),
         type: "number",
         placeholder: "60"
       }
@@ -116,7 +123,7 @@ function S(e) {
       "select",
       {
         value: r.call_type,
-        onChange: (a) => o("call_type", a.target.value),
+        onChange: (t) => o("call_type", t.target.value),
         className: "mt-0.5 w-full bg-[var(--color-bg-primary)] text-sm text-[var(--color-text-primary)] border border-[var(--color-border)] rounded px-2 py-1.5 outline-none focus:border-[var(--color-accent)] transition-colors"
       },
       /* @__PURE__ */ e.h("option", { value: "webhook" }, "Webhook Call"),
@@ -125,17 +132,17 @@ function S(e) {
       "select",
       {
         value: r.agent_slug,
-        onChange: (a) => o("agent_slug", a.target.value),
+        onChange: (t) => o("agent_slug", t.target.value),
         className: "mt-0.5 w-full bg-[var(--color-bg-primary)] text-sm text-[var(--color-text-primary)] border border-[var(--color-border)] rounded px-2 py-1.5 outline-none focus:border-[var(--color-accent)] transition-colors"
       },
       /* @__PURE__ */ e.h("option", { value: "" }, "Select an agent…"),
-      c.map((a) => /* @__PURE__ */ e.h("option", { key: a.slug, value: a.slug }, a.name || a.slug))
+      c.map((t) => /* @__PURE__ */ e.h("option", { key: t.slug, value: t.slug }, t.name || t.slug))
     )), /* @__PURE__ */ e.h(
       m,
       {
         label: "Target slug",
         value: r.target_slug,
-        onChange: (a) => o("target_slug", a),
+        onChange: (t) => o("target_slug", t),
         placeholder: "w-feed-subscriber"
       }
     )) : /* @__PURE__ */ e.h(e.React.Fragment, null, /* @__PURE__ */ e.h(
@@ -143,7 +150,7 @@ function S(e) {
       {
         label: "Target Webhook URL",
         value: r.webhook_url,
-        onChange: (a) => o("webhook_url", a),
+        onChange: (t) => o("webhook_url", t),
         placeholder: "https://agents-platform.internal/api/webhooks/..."
       }
     ), /* @__PURE__ */ e.h(
@@ -151,7 +158,7 @@ function S(e) {
       {
         label: r.has_auth_token ? "Auth Token (Bearer) — set, leave blank to keep" : "Auth Token (Bearer)",
         value: r.auth_token,
-        onChange: (a) => o("auth_token", a),
+        onChange: (t) => o("auth_token", t),
         type: "password",
         placeholder: "token used as Authorization: Bearer <token>"
       }
@@ -163,15 +170,15 @@ function S(e) {
       {
         type: d,
         value: c,
-        onChange: (a) => o(a.target.value),
+        onChange: (t) => o(t.target.value),
         placeholder: u,
         className: "mt-0.5 w-full bg-[var(--color-bg-primary)] text-sm text-[var(--color-text-primary)] border border-[var(--color-border)] rounded px-2 py-1.5 outline-none focus:border-[var(--color-accent)] transition-colors"
       }
     ));
   }
-  e.registerWindow("feed-subscriber.main", f);
+  e.registerWindow("feed-subscriber.main", y);
 }
 export {
-  S as default,
-  S as register
+  R as default,
+  R as register
 };

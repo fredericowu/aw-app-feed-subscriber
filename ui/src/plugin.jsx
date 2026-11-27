@@ -38,6 +38,9 @@ export function register(host) {
   function FeedSubscriberWindowBody() {
     const [cards, setCards] = useState(null);
     const [agents, setAgents] = useState([]);
+    // The /agents proxy answers 200 with {agents: [], error} when the
+    // Agents Platform base URL / token (app settings) are wrong; surface it.
+    const [agentsError, setAgentsError] = useState('');
     const [message, setMessage] = useState('');
 
     const showMessage = useCallback((msg) => {
@@ -55,9 +58,12 @@ export function register(host) {
 
     useEffect(() => {
       host.sdk.api.fetch(host.app.apiUrl('/agents'))
-        .then((r) => r.json())
-        .then((data) => setAgents(data.agents || []))
-        .catch(() => setAgents([]));
+        .then((r) => {
+          if (!r.ok) throw new Error(`Agent lookup failed (HTTP ${r.status})`);
+          return r.json();
+        })
+        .then((data) => { setAgents(data.agents || []); setAgentsError(data.error || ''); })
+        .catch((e) => { setAgents([]); setAgentsError(String((e && e.message) || e)); });
     }, []);
 
     const updateCard = useCallback((id, field, value) => {
@@ -123,6 +129,13 @@ export function register(host) {
             </button>
           </div>
         </div>
+
+        {agentsError && (
+          <div role="alert" className="mb-4 text-xs rounded border border-[var(--color-border)] px-3 py-2 text-[var(--color-danger)]">
+            Could not load agents for Agent Call cards: {agentsError}. Check the Agents Platform base URL
+            and token in Settings &gt; Apps &gt; Feed Subscriber.
+          </div>
+        )}
 
         {cards.length === 0 && (
           <div className="text-xs text-[var(--color-text-muted)] italic">
