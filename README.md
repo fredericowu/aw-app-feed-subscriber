@@ -30,7 +30,7 @@ including how to diagnose a card that stopped firing.
 ## Configuration
 
 Open the **Feed Subscriber** window from the Apps grid to add/edit/remove
-cards. Two app-level settings (Settings → Feed Subscriber) are shared by
+cards. Two app-level settings (Settings → Apps → Feed Subscriber) are shared by
 every Agent Call card:
 
 - `agents_platform_base` — defaults to the bridge-gateway address every

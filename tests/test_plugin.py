@@ -156,3 +156,42 @@ class TestAuthTokenReachesThePoller:
         args, kwargs = mock_client.post.call_args
         assert args[0] == "https://hook.example.com"
         assert kwargs["headers"]["Authorization"] == "Bearer supersecret"
+
+
+class TestAppSettingsSaveLeavesCardsAlone:
+    """Saving the app-level settings (base URL / token) must not touch cards,
+    their secrets, or the poller's per-card tasks: no re-created task means no
+    second dispatch for the same feed change."""
+
+    def test_settings_save_keeps_cards_secret_and_tasks(self, client, ctx):
+        client.post("/cards", json={"id": "w", "name": "W", "source_url": "http://s",
+                                    "call_type": "webhook", "webhook_url": "http://h",
+                                    "auth_token": "tok"})
+        before = client.get("/cards").json()["cards"]
+        assert before[0]["has_auth_token"] is True
+
+        created = []
+
+        def fake_create_task(coro):
+            coro.close()
+            created.append(1)
+            return MagicMock()
+
+        supervisor = poller_mod.PollerSupervisor(
+            get_cards=lambda: plugin.cards_with_secrets(list(ctx.config["cards"]), ctx.secrets),
+            get_agents_platform=lambda: ("http://ap", None),
+        )
+        with patch.object(poller_mod.asyncio, "create_task", side_effect=fake_create_task):
+            _run(supervisor.reconcile())
+            # core merges a partial save: only the settings keys change
+            ctx.config.update({"agents_platform_base": "http://other", "agents_platform_token": "t2"})
+            _run(plugin.FeedSubscriberAppPlugin().on_config_saved(ctx))
+            _run(supervisor.reconcile())
+
+        assert len(created) == 1
+        assert client.get("/cards").json()["cards"] == before
+        assert "tok" in ctx.secrets._store.values()
+
+    def test_built_bundle_surfaces_the_agents_error_with_its_settings_pointer(self):
+        bundle = (ROOT / "ui" / "dist" / "feed-subscriber-ui.mjs").read_text()
+        assert "Settings &gt; Apps &gt; Feed Subscriber" in bundle or "Settings > Apps > Feed Subscriber" in bundle
